@@ -1,0 +1,20 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Environmental variables
+.env
+
+# Database files
+*.db
+*.db-journal
+
+# Excel/CSV reports
+*.csv
