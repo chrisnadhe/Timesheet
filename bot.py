@@ -7,6 +7,7 @@ from functools import wraps
 from tzlocal import get_localzone
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
+from telegram.request import HTTPXRequest
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -20,7 +21,11 @@ import database
 load_dotenv()
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+if TOKEN:
+    TOKEN = TOKEN.strip()
 AUTHORIZED_USER_ID_RAW = os.getenv("AUTHORIZED_USER_ID")
+if AUTHORIZED_USER_ID_RAW:
+    AUTHORIZED_USER_ID_RAW = AUTHORIZED_USER_ID_RAW.strip()
 
 if not TOKEN or TOKEN == "your_bot_token_here":
     raise ValueError("TELEGRAM_BOT_TOKEN tidak boleh kosong. Harap atur di file .env")
@@ -569,8 +574,15 @@ def main():
     # 1. Initialize SQLite Database tables
     database.init_db()
     
-    # 2. Build Application
-    application = Application.builder().token(TOKEN).post_init(post_init).build()
+    # 2. Build Application with custom timeouts to handle slow DNS/connections
+    request_config = HTTPXRequest(connect_timeout=20.0, read_timeout=20.0)
+    application = (
+        Application.builder()
+        .token(TOKEN)
+        .request(request_config)
+        .post_init(post_init)
+        .build()
+    )
     
     # 3. Add handlers
     application.add_handler(CommandHandler("start", start_command))
