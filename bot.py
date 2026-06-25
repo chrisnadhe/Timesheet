@@ -575,7 +575,7 @@ def main():
     database.init_db()
     
     # 2. Build Application with custom timeouts to handle slow DNS/connections
-    request_config = HTTPXRequest(connect_timeout=20.0, read_timeout=20.0)
+    request_config = HTTPXRequest(connect_timeout=30.0, read_timeout=60.0)
     application = (
         Application.builder()
         .token(TOKEN)
