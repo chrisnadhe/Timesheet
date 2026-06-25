@@ -42,7 +42,7 @@ LOCAL_TZ = get_localzone()
 
 # Setup logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG
 )
 logger = logging.getLogger(__name__)
 
@@ -575,11 +575,13 @@ def main():
     database.init_db()
     
     # 2. Build Application with custom timeouts to handle slow DNS/connections
-    request_config = HTTPXRequest(connect_timeout=30.0, read_timeout=60.0)
     application = (
         Application.builder()
         .token(TOKEN)
-        .request(request_config)
+        .connect_timeout(30.0)
+        .read_timeout(30.0)
+        .get_updates_connect_timeout(30.0)
+        .get_updates_read_timeout(60.0)
         .post_init(post_init)
         .build()
     )
