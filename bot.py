@@ -2,7 +2,7 @@ import os
 import logging
 import re
 import csv
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, timezone
 from functools import wraps
 from tzlocal import get_localzone
 
@@ -281,12 +281,20 @@ async def generate_and_send_report(
             writer = csv.writer(f)
             writer.writerow(["Tanggal", "Project", "Durasi (Jam)", "Deskripsi", "Waktu Input"])
             for entry in entries:
+                # Convert UTC created_at to local timezone for user-friendly CSV display
+                created_at_local = entry["created_at"]
+                try:
+                    utc_dt = datetime.strptime(entry["created_at"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+                    created_at_local = utc_dt.astimezone(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S")
+                except Exception as e:
+                    logger.debug(f"Could not convert created_at to local: {e}")
+
                 writer.writerow([
                     entry["date"],
                     entry["project"],
                     entry["duration"],
                     entry["description"],
-                    entry["created_at"]
+                    created_at_local
                 ])
                 
         # Send Document
